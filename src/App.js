@@ -10,6 +10,12 @@ function App() {
 	const [query, setQuery] = useState("");
 	const [weather, setWeather] = useState({});
 
+	let weatherHistory = [];
+	if (localStorage.getItem("weather-history")) {
+		weatherHistory = JSON.parse(localStorage.getItem("weather-history"));
+		console.log(weatherHistory);
+	}
+
 	const search = (evt) => {
 		if (evt.key === "Enter") {
 			fetch(`${api.baseUrl}weather?q=${query}&units=metric&APPID=${api.key}`)
@@ -17,7 +23,12 @@ function App() {
 				.then((result) => {
 					setWeather(result);
 					setQuery(""); //reset query
-					console.log(result);
+					//localStorage.setItem('weather-history', (result))
+					weatherHistory.push(result);
+					localStorage.setItem(
+						"weather-history",
+						JSON.stringify(weatherHistory)
+					);
 				});
 		}
 	};
@@ -70,7 +81,7 @@ function App() {
 					<input
 						type="text"
 						className="search__bar"
-						placeholder="Search..."
+						placeholder="Search location..."
 						onChange={(e) => setQuery(e.target.value)}
 						value={query}
 						onKeyPress={search}
@@ -92,6 +103,22 @@ function App() {
 				) : (
 					""
 				)}
+
+				<div className="history-box">
+					<h2 className="history-title">Search History</h2>
+					<ol>
+						{weatherHistory.map((location, index) => {
+							return (
+								<li key={index}>
+									<span>
+										{location.name}, {location.sys.country}
+									</span>
+									<span>Date here</span>
+								</li>
+							);
+						})}
+					</ol>
+				</div>
 			</main>
 		</div>
 	);
