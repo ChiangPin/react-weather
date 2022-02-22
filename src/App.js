@@ -13,7 +13,10 @@ function App() {
 	let weatherHistory = [];
 	if (localStorage.getItem("weather-history")) {
 		weatherHistory = JSON.parse(localStorage.getItem("weather-history"));
-		console.log(weatherHistory);
+	}
+
+	function getWeatherHistory() {
+		return weatherHistory;
 	}
 
 	const search = (evt) => {
@@ -21,14 +24,22 @@ function App() {
 			fetch(`${api.baseUrl}weather?q=${query}&units=metric&APPID=${api.key}`)
 				.then((res) => res.json())
 				.then((result) => {
-					setWeather(result);
-					setQuery(""); //reset query
-					//localStorage.setItem('weather-history', (result))
-					weatherHistory.push(result);
-					localStorage.setItem(
-						"weather-history",
-						JSON.stringify(weatherHistory)
-					);
+					if (result.cod !== "404") {
+						weatherHistory = [...weatherHistory];
+						setWeather(result);
+						setQuery("");
+						weatherHistory.push(result);
+						weatherHistory = [...weatherHistory];
+
+						console.log(weatherHistory);
+						localStorage.setItem(
+							"weather-history",
+							JSON.stringify(weatherHistory)
+						);
+					}
+				})
+				.catch((err) => {
+					console.log(err);
 				});
 		}
 	};
@@ -66,6 +77,11 @@ function App() {
 		return `${day} ${date} ${month} ${year}`;
 	};
 
+	function getDate(milliseconds) {
+		let date = new Date(milliseconds).toLocaleTimeString();
+		return date.toString();
+	}
+
 	return (
 		<div
 			className={
@@ -88,32 +104,37 @@ function App() {
 					></input>
 				</div>
 				{typeof weather.main != "undefined" ? (
-					<div>
+					<div className="main-content">
 						<div className="location-box">
 							<div className="location">
 								{weather.name}, {weather.sys.country}
 							</div>
-							<div className="date">{dateBuilder(new Date())}</div>
+							<div className="date">
+								{dateBuilder(new Date())} (
+								{getDate(weather.dt * 1000 + weather.timezone * 1000)})
+							</div>
 						</div>
 						<div className="weather-box">
 							<div className="temp">{weather.main.temp.toFixed(1)}°c</div>
 							<div className="weather">{weather.weather[0].main}</div>
+							<div className="humidity">Humidity: {weather.main.humidity}%</div>
 						</div>
 					</div>
 				) : (
-					""
+					<div className="main-content"></div>
 				)}
 
 				<div className="history-box">
 					<h2 className="history-title">Search History</h2>
-					<ol>
-						{weatherHistory.map((location, index) => {
+					<ol style={{ overflowY: "auto" }}>
+						{getWeatherHistory().map((location, index) => {
 							return (
-								<li key={index}>
-									<span>
+								<li className="history-list" key={index}>
+									{index + 1}.&nbsp;
+									<span className="history-location">
 										{location.name}, {location.sys.country}
 									</span>
-									<span>Date here</span>
+									<span className="history-time">{getDate(location.dt)}</span>
 								</li>
 							);
 						})}

@@ -29,6 +29,10 @@ main {
 	padding: 25px;
 }
 
+.main-content {
+	min-height: 50vh;
+}
+
 .search__box {
 	width: 100%;
 	margin: 0 0 75px;
@@ -104,6 +108,26 @@ main {
 	text-shadow: 3px 3px rgba(50, 50, 70, 0.5);
 }
 
+.weather-box .humidity {
+	color: #fff;
+	font-size: 32px;
+	text-shadow: 2px 2px rgba(50, 50, 70, 0.5);
+	font-style: oblique;
+	font-style: italic;
+}
+
 .history-box {
 	color: #fff;
+}
+
+.history-list {
+	display: flex;
+}
+
+.history-title {
+	margin-bottom: 20px;
+}
+
+.history-time {
+	margin-left: auto;
 }
